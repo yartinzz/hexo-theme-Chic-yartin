@@ -1,7 +1,139 @@
-<%# single category page%>
+<%
+let currentPath = page.path || 'categories/index.html'; // 主分类页面默认路径
+let pathParts = currentPath.split('/').filter(part => part !== '');
+
+pathParts = pathParts.map(part => decodeURIComponent(part));
+
+if (pathParts[0] === 'categories') {
+    pathParts = pathParts.slice(1);
+}
+
+if (pathParts[pathParts.length - 1] === 'index.html') {
+    pathParts = pathParts.slice(0, -1);
+}
+
+let currentDepth = pathParts.length;
+let currentCategoryPath = pathParts.join('/');
+
+let pageTitle = '';
+if (currentDepth === 0) {
+    pageTitle = 'Categories';
+} else {
+    pageTitle = 'Categories · ' + (page.category || pathParts[pathParts.length - 1]);
+}
+
+function getDirectSubCategories(categoryPath, depth) {
+    let subCategories = [];
+    
+    site.categories.forEach(category_item => {
+        let catPath = category_item.path;
+        let catPathParts = catPath.split('/').filter(part => part !== '');
+        catPathParts = catPathParts.map(part => decodeURIComponent(part));
+        
+        if (catPathParts[0] === 'categories') {
+            catPathParts = catPathParts.slice(1);
+        }
+        
+        if (catPathParts[catPathParts.length - 1] === 'index.html') {
+            catPathParts = catPathParts.slice(0, -1);
+        }
+        
+        if (catPathParts.length === depth + 1) {
+            if (depth === 0) {
+                subCategories.push({
+                    name: catPathParts[0],
+                    fullName: category_item.name,
+                    path: category_item.path,
+                    posts: category_item.posts,
+                    depth: catPathParts.length,
+                    fullPath: catPathParts.join('/')
+                });
+            } else {
+                let parentPath = catPathParts.slice(0, depth).join('/');
+                if (parentPath === categoryPath) {
+                    subCategories.push({
+                        name: catPathParts[catPathParts.length - 1],
+                        fullName: category_item.name,
+                        path: category_item.path,
+                        posts: category_item.posts,
+                        depth: catPathParts.length,
+                        fullPath: catPathParts.join('/')
+                    });
+                }
+            }
+        }
+    });
+    
+    return subCategories;
+}
+%>
+
 <div class="container">
     <div class="post-wrap categories">
-        <h2 class="post-title">-&nbsp;Categories&nbsp;·&nbsp;<%-page.category%>-</h2>
+        <h2 class="post-title">-&nbsp;<%- pageTitle %>&nbsp;-</h2>
     </div>
-    <%- partial('archive', {pagination: config.category, index: true}) %>
+    
+    <%
+    let directSubCategories = getDirectSubCategories(currentCategoryPath, currentDepth);
+    let hasDirectSubCategories = directSubCategories.length > 0;
+    %>
+    
+    <% if (hasDirectSubCategories) { %>
+        <div class="post-wrap categories">
+            <div class="categories-card">
+                <% directSubCategories.forEach(subCategory => { %>
+                    <div class="card-item">
+                        <div class="categories">
+                            <a href="<%- url_for(subCategory.path) %>">
+                                <h3>
+                                    <i class="iconfont icon-category" style="padding-right:3px"></i>
+                                    <%- subCategory.name %>
+                                </h3>
+                            </a>
+                            
+                            <%
+                            let grandChildren = getDirectSubCategories(subCategory.fullPath, subCategory.depth);
+                            let hasGrandChildren = grandChildren.length > 0;
+                            %>
+                            
+                            <% if (hasGrandChildren) { %>
+                                <div class="subcategories" style="margin-left: 15px; margin-top: 10px;">
+                                    <% grandChildren.forEach(grandChild => { %>
+                                        <div class="subcategory-item" style="margin-bottom: 8px;">
+                                            <a href="<%- url_for(grandChild.path) %>" style="font-size: 1em; color: #000000;">
+                                                <i class="iconfont icon-category" style="padding-right:3px; font-size: 0.8em;"></i>
+                                                <%- grandChild.name %> (<%- grandChild.posts.length %>)
+                                            </a>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            <% } else { %>
+                                <% subCategory.posts.forEach((post_item, index = 0)=>{ %>
+                                    <% if(++index <= 5){ %>
+                                        <article class="archive-item">
+                                            <a class="archive-item-link"
+                                               href="<%- url_for(post_item.path) %>"><%- post_item.title %></a>
+                                        </article>
+                                    <% } %>
+                                <% }) %>
+                                <% if(subCategory.posts.length > 5){ %>
+                                    <a class="more-post-link" href="<%- url_for(subCategory.path) %>">More >></a>
+                                <% } %>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>
+    <% } else { %>
+        <% if (currentDepth === 0) { %>
+            <div class="container">
+                <div class="post-wrap categories">
+                    <p style="text-align: center; color: #999; padding: 20px;">No Categories</p>
+                </div>
+            </div>
+        <% } else { %>
+            <%- partial('archive', {pagination: config.category, index: true}) %>
+        <% } %>
+    <% } %>
 </div>

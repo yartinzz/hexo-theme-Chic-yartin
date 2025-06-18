@@ -1,5 +1,17 @@
 <footer id="footer" class="footer">
     <div class="copyright">
+        <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+        <div class="poem-container">
+            <div id="poem_sentence" style="display: inline;"></div> —— <div id="poem_info" style="display: inline;"></div>
+        </div>
+        <script type="text/javascript">
+        jinrishici.load(function(result) {
+            var sentence = document.querySelector("#poem_sentence")
+            var info = document.querySelector("#poem_info")
+            sentence.innerHTML = result.data.content
+            info.innerHTML = '【' + result.data.origin.dynasty + '】' + result.data.origin.author + '《' + result.data.origin.title + '》'
+            });
+        </script>
         <span>© <%= config.author %> | Powered by <a href="https://hexo.io" target="_blank">Hexo</a> & <a href="https://github.com/Siricee/hexo-theme-Chic" target="_blank">Chic</a></span>
     </div>
 </footer>
