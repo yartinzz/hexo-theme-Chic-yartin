@@ -1,5 +1,18 @@
 Changelogs
 
+
+### Changed by Yartinzz
+
+## 2025.6.18
+
+\[enhancement\]  Added multi-level category display support.  
+Subcategories declared in `front-matter` will now be shown in the `categories` page in a parent-child-grandchild hierarchy, instead of directly listing all posts under the root category.  
+
+More details: [Hexo Chic: Added multi-level nested category display support.](http://yartinz.com/2025/06/18/Hexo-Chic-%E6%B7%BB%E5%8A%A0%E5%A4%9A%E7%BA%A7%E5%B5%8C%E5%A5%97%E5%88%86%E7%B1%BB%E6%98%BE%E7%A4%BA%E6%94%AF%E6%8C%81/)
+
+
+### Changed by Siricee
+
 ## 2025.4.12
 
 \[enhancement\]  
